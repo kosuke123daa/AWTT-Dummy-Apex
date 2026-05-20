@@ -11,13 +11,13 @@
 public with sharing class ContractRiskAnalyzer {
 
     public class ContractRiskResult {
-        @InvocableVariable(label='契約書タイトル' description='リスクが検出された契約書の名称')
+        @InvocableVariable(label='契約書タイトル' description='抽出された契約書の名称')
         public String agreementTitle;
 
         @InvocableVariable(label='契約書URL' description='DocuSign Navigator上の契約書URL')
         public String documentUrl;
 
-        @InvocableVariable(label='リスク理由' description='リスクと判定された具体的な根拠')
+        @InvocableVariable(label='Reason' description='抽出された具体的な根拠')
         public String riskReason;
     }
 
