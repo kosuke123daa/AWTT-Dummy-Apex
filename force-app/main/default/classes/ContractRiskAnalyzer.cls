@@ -28,7 +28,7 @@ public with sharing class ContractRiskAnalyzer {
 
     @InvocableMethod(
         label='DocuSign契約書を抽出'
-        description='DocuSign Navigatorからリスクのある契約書を抽出して返します。世界的なインフレ・燃料費高騰・地政学リスクを考慮した契約見直し対象の特定に使用します。'
+        description='DocuSign Navigatorからリクエストされた契約書を抽出して返します。'
         callout=true
     )
     public static List<ContractRiskResult> getRiskyContracts(List<ContractRiskRequest> requests) {
