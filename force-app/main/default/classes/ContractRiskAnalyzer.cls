@@ -22,7 +22,7 @@ public with sharing class ContractRiskAnalyzer {
     }
 
     public class ContractRiskRequest {
-        @InvocableVariable(label='分析クエリ' description='Agentforceから渡されるリスク分析の依頼内容')
+        @InvocableVariable(label='分析クエリ' description='Agentforceから渡される依頼内容')
         public String query;
     }
 
