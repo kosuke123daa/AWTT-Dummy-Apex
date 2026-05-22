@@ -49,7 +49,7 @@ public with sharing class SendEnvelopeFromTemplate {
             // 送信（受信者はテンプレートに設定済みのためここでは不要）
             envelope = dfsle.EnvelopeService.sendEnvelope(envelope, true);
 
-            result.envelopeId = envelope.docuSignId == null ? null : envelope.docuSignId.toString();
+            result.envelopeId = envelope.docuSignId == null ? null : String.valueOf(envelope.docuSignId);
             result.status     = 'sent';
             result.message    = '署名依頼を送信しました。';
 
