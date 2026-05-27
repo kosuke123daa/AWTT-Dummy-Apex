@@ -3,6 +3,11 @@
  * テンプレートID: d2b74bf5-b37e-4351-9739-3dc179b49715
  * 認証はeSignature for Salesforceのインストール済み設定を使用。
  * 受信者のメールアドレスと名前はAgentforceから渡す。ロール名「契約者」に紐づける。
+ *
+ * @InvocableMethodはAgentforceに即時レスポンスを返し、
+ * 実際の送信処理は@future(callout=true)で非同期実行する。
+ * AgentforceのセッションコンテキストではApex ToolkitのセッションIDが取得できないため、
+ * @futureで呼び出しユーザーのコンテキストに切り替えることで回避する。
  */
 public with sharing class SendEnvelopeFromTemplate {
 
@@ -19,10 +24,7 @@ public with sharing class SendEnvelopeFromTemplate {
     }
 
     public class SendEnvelopeResult {
-        @InvocableVariable(label='エンベロープID' description='送信されたDocuSignエンベロープのID')
-        public String envelopeId;
-
-        @InvocableVariable(label='送信ステータス' description='送信結果のステータス')
+        @InvocableVariable(label='送信ステータス' description='送信受付結果のステータス')
         public String status;
 
         @InvocableVariable(label='メッセージ' description='処理結果のメッセージ')
@@ -32,49 +34,38 @@ public with sharing class SendEnvelopeFromTemplate {
     @InvocableMethod(
         label='DocuSign署名依頼を送信'
         description='DocuSignテンプレートを使って署名依頼を送信します。'
-        callout=true
+        callout=false
     )
     public static List<SendEnvelopeResult> sendEnvelope(List<SendEnvelopeRequest> requests) {
         SendEnvelopeRequest req = requests[0];
         SendEnvelopeResult result = new SendEnvelopeResult();
 
-        try {
-            // テンプレートIDをdfsle.UUID形式に変換
-            dfsle.UUID templateId = dfsle.UUID.parse(TEMPLATE_ID);
+        sendEnvelopeAsync(req.recipientEmail, req.recipientName);
 
-            // テンプレートからドキュメントを生成
-            dfsle.Document doc = dfsle.Document.fromTemplate(templateId, TEMPLATE_NAME);
-
-            // 受信者をテンプレートのロール「契約者」に紐づけて生成
-            dfsle.Recipient recipient = dfsle.Recipient.fromSource(
-                req.recipientName,
-                req.recipientEmail,
-                null,
-                ROLE_NAME,
-                null
-            );
-
-            // 空のエンベロープを作成（Salesforceレコードとの紐付けなし）
-            dfsle.Envelope envelope = dfsle.EnvelopeService.getEmptyEnvelope(null);
-
-            // エンベロープにドキュメント（テンプレート）と受信者を追加
-            envelope = envelope
-                .withDocuments(new List<dfsle.Document>{ doc })
-                .withRecipients(new List<dfsle.Recipient>{ recipient });
-
-            // 送信
-            envelope = dfsle.EnvelopeService.sendEnvelope(envelope, true);
-
-            result.envelopeId = envelope.docuSignId == null ? null : String.valueOf(envelope.docuSignId);
-            result.status     = 'sent';
-            result.message    = '署名依頼を送信しました。';
-
-        } catch (Exception e) {
-            result.envelopeId = null;
-            result.status     = 'error';
-            result.message    = '送信に失敗しました: ' + e.getMessage();
-        }
+        result.status  = 'accepted';
+        result.message = '署名依頼の送信処理を開始しました。';
 
         return new List<SendEnvelopeResult>{ result };
+    }
+
+    @future(callout=true)
+    private static void sendEnvelopeAsync(String recipientEmail, String recipientName) {
+        dfsle.UUID templateId = dfsle.UUID.parse(TEMPLATE_ID);
+        dfsle.Document doc = dfsle.Document.fromTemplate(templateId, TEMPLATE_NAME);
+
+        dfsle.Recipient recipient = dfsle.Recipient.fromSource(
+            recipientName,
+            recipientEmail,
+            null,
+            ROLE_NAME,
+            null
+        );
+
+        dfsle.Envelope envelope = dfsle.EnvelopeService.getEmptyEnvelope(null);
+        envelope = envelope
+            .withDocuments(new List<dfsle.Document>{ doc })
+            .withRecipients(new List<dfsle.Recipient>{ recipient });
+
+        dfsle.EnvelopeService.sendEnvelope(envelope, true);
     }
 }
