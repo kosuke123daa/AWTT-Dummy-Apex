@@ -40,7 +40,7 @@ public with sharing class ContractRiskAnalyzer {
         ContractRiskResult result = new ContractRiskResult();
         result.agreementTitle = 'PlantCare スタンダード 保守サービス契約書';
         result.documentUrl    = 'https://apps-d.docusign.com/send/navigator/agreements/52a32464-9996-4042-9151-54003a46e11e?force_reauth=true&accountId=68caeeed-03a5-42f0-94af-3d56304e4d71';
-        result.riskReason     = '価格改定方式=指標連動改定、主要交換部材調達元区分=海外、不可抗力区分=地政学・物流事由含む、自動更新、有効期限が今後3ヶ月以内';
+        result.riskReason     = '主要交換部材の調達元が海外のため地政学リスク・物流遅延による部材確保困難のおそれあり、現行単価が据え置きのまま自動更新されるとインフレ・燃料費高騰分を回収できないリスク、有効期限まで3ヶ月以内のため値上げ交渉の機会が限られる';
 
         return new List<ContractRiskResult>{ result };
     }
