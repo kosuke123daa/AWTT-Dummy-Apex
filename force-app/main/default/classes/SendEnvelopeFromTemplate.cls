@@ -43,7 +43,7 @@ public with sharing class SendEnvelopeFromTemplate {
         sendEnvelopeAsync(req.recipientEmail, req.recipientName);
 
         result.status  = 'accepted';
-        result.message = '署名依頼の送信処理を開始しました。';
+        result.message = '署名依頼の送信処理を完了しました。';
 
         return new List<SendEnvelopeResult>{ result };
     }
